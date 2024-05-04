@@ -1,0 +1,43 @@
+---
+objects:
+  - parte_1: DADict
+  - parte1_miembros: DAList
+  - tipos: DAList
+---
+code: |
+  tipos = ["Individuo","Corporación o Sociedad", "Suceciones", "Capitulaciones","Bien privativo"]
+  parte_1['tipo'] = tipos[0]
+  parte_1['estado_civil']=["Casados", "Soltero"]
+  parte_1['miembros'] = parte1_miembros
+---
+mandatory: True
+question: | 
+  Resumen parte 1
+subquestion: |
+  Los miembros son
+  % for miembro in parte1_miembros:
+  ${ miembro }
+  % endfor
+  Contenido del diccionario: ${ parte_1['miembros'] }
+  El tipo es ${ parte_1['tipo'] }
+  
+---
+generic object: DAList
+question: |
+  % if i == 0:
+  Entre
+  ${ indefinite_article(x.object_name()) }.
+  % else:
+  Otro ${ x.object_name() }.
+  % endif
+fields:
+  - no label: x[i]
+---
+  question: Miembros primera parte
+  yesno: parte1_miembros.there_are_any
+---
+  question: Hay más partes?
+  yesno: parte1_miembros.there_is_another
+
+  
+  
