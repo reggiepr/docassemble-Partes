@@ -3,12 +3,19 @@ objects:
   - parte_1: DADict
   - parte1_miembros: DAList
   - tipos: DAList
+  - member: Individual
 ---
 code: |
   tipos = ["Individuo","Corporación o Sociedad", "Suceciones", "Capitulaciones","Bien privativo"]
   parte_1['tipo'] = tipos[0]
   parte_1['estado_civil']=["Casados", "Soltero"]
   parte_1['miembros'] = parte1_miembros
+  parte1_miembros.appendObject(Individual)
+  parte1_miembros.gathered = True
+---
+#code: |
+#  if parte1_miembros.there_are_any:
+#    parte1_miembros.appendObject(member)
 ---
 mandatory: True
 question: | 
@@ -20,24 +27,34 @@ subquestion: |
   % endfor
   Contenido del diccionario: ${ parte_1['miembros'] }
   El tipo es ${ parte_1['tipo'] }
-  
+continue button field: resumen_shown  
 ---
 generic object: DAList
 question: |
-  % if i == 0:
-  Entre
-  ${ indefinite_article(x.object_name()) }.
-  % else:
-  Otro ${ x.object_name() }.
-  % endif
+  The ${ ordinal(i) } ${ x.object_name() } must have a name.  What is it?
 fields:
-  - no label: x[i]
+  - First Name: x[i].name.first
+  - Last Name: x[i].name.last
+---
+generic object: Individual
+question: |
+  What is the name of the ${ x.object_name() }?
+fields:
+  - First Name: x.name.first
+  - Last Name: x.name.last
+---
 ---
   question: Miembros primera parte
   yesno: parte1_miembros.there_are_any
 ---
   question: Hay más partes?
   yesno: parte1_miembros.there_is_another
+---
+question: |
+  Miembro
+fields: 
+ - Nombre: member.name.first
+ - Apellidos: member.name.last
 
   
   

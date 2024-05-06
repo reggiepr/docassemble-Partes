@@ -1,0 +1,146 @@
+modules:
+  - .contrato
+---
+objects:
+  - parte_1: DADict
+  - parte1_miembros: DAList
+  - tipos: DAList
+  - member: Individual
+  - individuo_principal_parte_1: Individual
+  - individuo_principal_parte_2: Individual
+  - individuo_pareja_parte_1: Pareja
+  - individuo_pareja_parte_2: Pareja
+---
+code: |
+  tipos = ["Individuo","Corporación o Sociedad", "Suceciones", "Capitulaciones","Bien privativo"]
+  tipos_lista = {"ind":'Individuo',"corp":"Corporación o Sociedad","suc": "Suceciones", "cap": "Capitulaciones","bp":"Bien privativo"}
+  parte_1['tipo'] = tipos[0]
+  parte_1['estado_civil']=["Casados", "Soltero"]
+  parte_1['miembros'] = parte1_miembros
+  parte1_miembros.appendObject(Individual)
+  parte1_miembros.gathered = True
+---
+mandatory: True
+question: |
+  Naturaleza de la parte I
+fields:
+  - Tipo primera parte: parte1_tipo
+    code: |
+      tipos_lista
+continue button field: natu_parte1_ok
+---
+mandatory: True
+question: |
+  Naturaleza de la parte II
+fields:
+  - Tipo segunda parte: parte2_tipo
+    code: |
+      tipos_lista
+continue button field: natu_parte2_ok
+---
+Initial: True
+# mandatory: True
+code: |
+ if parte1_tipo == 'ind':
+   miembros_parte1= individuo_principal_parte_1.name.first + (' y '+individuo_pareja_parte_1.name.first if individuo_principal_parte_1.estatus=='Casado' else '')
+ 
+ miembros_parte1_principal = individuo_principal_parte_1.name.first
+ if individuo_principal_parte_1.estatus=='Casado':
+   miembros_parte1_pareja = individuo_pareja_parte_1.name.first
+ 
+ 
+ if parte2_tipo == 'ind':
+   miembros_parte2= individuo_principal_parte_2.name.first + (' y '+individuo_pareja_parte_2.name.first if individuo_principal_parte_2.estatus=='Casado' else '')
+   miembros_parte2_principal = individuo_principal_parte_2.name.first
+ if individuo_principal_parte_2.estatus=='Casado':
+   miembros_parte2_pareja = individuo_pareja_parte_2.name.first
+ 
+---
+question: | 
+ Eso es todo!
+ PARTE 1: ${ miembros_parte1 }
+ PARTE 2: ${ miembros_parte2 }
+buttons:
+  - Salir: exit
+  - Empezar de nuevo: restart
+mandatory: True
+---
+mandatory: parte1_tipo == 'ind' and parte1_estatus == 'Casado'
+question: |
+ Parte I: Nombre de la pareja de ${ parte1_nombre }
+fields:
+  - Nombre: parte1_pareja_nombre
+  - Género: parte1_pareja_genero
+    input type: radio
+    choices:
+     - Femenino
+     - Masculino
+     - No binario
+continue button field: pareja_ind_entrado
+---
+mandatory: parte1_tipo == 'corp'
+question: |
+ Nombre de la corporación o sociedad
+fields:
+  - Nombre: parte1_nombre
+continue button field: primer_ind_entrado
+---
+mandatory: True
+question: | 
+  Resumen parte 1
+subquestion: |
+  Los miembros son
+  % for miembro in parte1_miembros:
+  ${ miembro }
+  % endfor
+  Contenido del diccionario: ${ parte_1['miembros'] }
+  El tipo es ${ parte_1['tipo'] }
+continue button field: resumen_shown  
+---
+generic object: DAList
+question: |
+  The ${ ordinal(i) } ${ x.object_name() } must have a name.  What is it?
+fields:
+  - First Name: x[i].name.first
+  - Last Name: x[i].name.last
+---
+  question: Miembros primera parte
+  yesno: parte1_miembros.there_are_any
+---
+  question: Hay más partes?
+  yesno: parte1_miembros.there_is_another
+---
+question: |
+  Miembro
+fields: 
+ - Nombre: member.name.first
+ - Apellidos: member.name.last
+---
+generic object: Individual
+question: |
+  ${ capitalize(x.object_name()) }:
+fields:
+  - Nombre: x.name.first
+  - Género: x.genero
+    input type: radio
+    choices:
+     - Femenino
+     - Masculino
+     - No binario
+  - Estatus civil: x.estatus
+    input type: radio
+    choices:
+     - Soltero
+     - Casado
+---
+generic object: Pareja
+question: |
+  ${ capitalize(x.object_name()) }:
+fields:
+  - Nombre: x.name.first
+  - Género: x.genero
+    input type: radio
+    choices:
+     - Femenino
+     - Masculino
+     - No binario
